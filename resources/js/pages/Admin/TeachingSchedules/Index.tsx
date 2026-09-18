@@ -1,15 +1,15 @@
 import { useState, FormEvent, useMemo } from "react";
-import { Head, useForm, router } from "@inertiajs/react";
+import { Head, useForm, router, Link } from "@inertiajs/react";
 import AppLayout from "@/layouts/app-layout";
 import {
     Plus,
     Edit2,
     Trash2,
     Calendar,
-    BookOpen,
-    Users,
     LayoutDashboard,
     Filter,
+    AlertCircle,
+    Users,
 } from "lucide-react";
 
 interface Teacher {
@@ -29,6 +29,12 @@ interface Classroom {
     wali_kelas_id?: string | null;
 }
 
+interface AcademicYear {
+    id: string;
+    tahun_ajaran: string;
+    semester: string;
+}
+
 interface TeachingSchedule {
     id: string;
     user: Teacher;
@@ -46,6 +52,7 @@ interface Props {
     teachers: Teacher[];
     subjects: Subject[];
     classrooms: Classroom[];
+    activeAcademic: AcademicYear | null;
 }
 
 export default function Index({
@@ -53,6 +60,7 @@ export default function Index({
     teachers,
     subjects,
     classrooms,
+    activeAcademic,
 }: Props) {
     const [modal, setModal] = useState<{
         type: "create" | "edit" | null;
@@ -81,7 +89,6 @@ export default function Index({
         );
     }, [data.subject_id, classrooms, subjects]);
 
-    // Algoritma Agregasi Data per Guru
     const groupedSchedules = Object.values(
         teaching_schedules.data.reduce(
             (acc, curr) => {
@@ -152,12 +159,37 @@ export default function Index({
         }
     };
 
+    if (!activeAcademic) {
+        return (
+            <div className="min-h-screen bg-[#F8F9FA] dark:bg-black flex items-center justify-center p-6">
+                <div className="bg-white dark:bg-sidebar p-8 rounded-2xl shadow-sm text-center max-w-md border border-red-100 dark:border-red-900/30">
+                    <AlertCircle
+                        size={48}
+                        className="text-red-500 mx-auto mb-4"
+                    />
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        Periode Akademik Belum Aktif
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">
+                        Penjadwalan mengajar memerlukan Tahun Ajaran yang aktif.
+                        Silakan atur terlebih dahulu.
+                    </p>
+                    <Link
+                        href="/admin/academics"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors"
+                    >
+                        Ke Menu Akademik
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <Head title="Manajemen Penugasan" />
             <div className="min-h-screen bg-[#F8F9FA] dark:bg-black p-4 sm:p-6 lg:p-8 font-sans">
                 <div className="max-w-7xl mx-auto space-y-6">
-                    {/* Header & Actions */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-sidebar border border-gray-100 dark:border-sidebar-border p-5 rounded-2xl shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl">
@@ -168,7 +200,11 @@ export default function Index({
                                     Penugasan Mengajar
                                 </h1>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Distribusi KBM guru dan beban kelas.
+                                    Semester Aktif:{" "}
+                                    <strong className="text-indigo-600 dark:text-indigo-400">
+                                        {activeAcademic.tahun_ajaran} -{" "}
+                                        {activeAcademic.semester}
+                                    </strong>
                                 </p>
                             </div>
                         </div>
@@ -200,7 +236,6 @@ export default function Index({
                         </div>
                     </div>
 
-                    {/* Grouped Grid View */}
                     {groupedSchedules.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                             {groupedSchedules.map((group, idx) => (
@@ -302,7 +337,6 @@ export default function Index({
                 </div>
             </div>
 
-            {/* Modal Tambah / Edit */}
             {(modal.type === "create" || modal.type === "edit") && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 dark:bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-sidebar rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-sidebar-border">
@@ -404,7 +438,18 @@ export default function Index({
                                         </option>
                                     ))}
                                 </select>
+                                {(errors as Record<string, string>).error && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {
+                                            (errors as Record<string, string>)
+                                                .error
+                                        }
+                                    </p>
+                                )}
                             </div>
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-sidebar-border"></div>
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-sidebar-border"></div>
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-sidebar-border"></div>
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-sidebar-border">
                                 <button
                                     type="button"
@@ -429,7 +474,6 @@ export default function Index({
                 </div>
             )}
 
-            {/* Modal Delete disederhanakan */}
             {deleteModal.isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 dark:bg-black/50 p-4">
                     <div className="bg-white dark:bg-sidebar rounded-2xl p-6 max-w-sm text-center">

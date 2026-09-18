@@ -6,12 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 class TeachingSchedule extends Model
 {
     use HasUlids;
     protected $guarded = ['id'];
 
+    // --- GLOBAL SCOPE TAHUN AJARAN ---
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active_academic_year', function (Builder $builder) {
+            $activeYearId = Cache::rememberForever('active_academic_year_id', function () {
+                return AcademicYear::where('is_active', true)->value('id');
+            });
+
+            if ($activeYearId) {
+                $builder->where('teaching_schedules.academic_year_id', $activeYearId);
+            }
+        });
+    }
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

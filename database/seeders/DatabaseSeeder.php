@@ -39,7 +39,6 @@ class DatabaseSeeder extends Seeder
         $siswa1 = User::create(['name' => 'Siswa Pertama', 'email' => 'siswa@lms.com', 'password' => $password, 'role' => 'siswa']);
         $siswa2 = User::create(['name' => 'Siswa Kedua', 'email' => 'siswa2@lms.com', 'password' => $password, 'role' => 'siswa']);
 
-        // 4. Masukkan siswa ke kelas melalui Pivot Table
         $siswa1->classrooms()->attach($kelas10A->id, ['academic_year_id' => $tahunAjaran->id]);
         $siswa2->classrooms()->attach($kelas10A->id, ['academic_year_id' => $tahunAjaran->id]);
 
@@ -51,7 +50,7 @@ class DatabaseSeeder extends Seeder
             'user_id' => $guru1->id,
             'subject_id' => $matematika->id,
             'classroom_id' => $kelas10A->id,
-            'academic_year_id' => $tahunAjaran->id, // Ikatan ke wadah semester
+            'academic_year_id' => $tahunAjaran->id,
         ]);
 
         // 5. Buat Skenario Ujian Aktif
@@ -60,8 +59,8 @@ class DatabaseSeeder extends Seeder
             'judul' => 'Ujian Tengah Semester (CBT & Essay)',
             'deskripsi' => 'Kerjakan pilihan ganda di sistem dan unggah foto kertas untuk essay.',
             'durasi_menit' => 90,
-            'waktu_buka' => Carbon::now()->subMinutes(10), // Sudah buka 10 menit lalu
-            'waktu_tutup' => Carbon::now()->addDays(1), // Tutup besok
+            'waktu_buka' => Carbon::now()->subMinutes(10),
+            'waktu_tutup' => Carbon::now()->addDays(1),
             'izinkan_upload' => true,
         ]);
 

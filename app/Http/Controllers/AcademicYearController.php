@@ -5,63 +5,59 @@ namespace App\Http\Controllers;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class AcademicYearController extends Controller
 {
     public function index()
     {
-        $academics = AcademicYear::orderBy('tanggal_mulai', 'desc')->paginate(10);
+        $academicYears = AcademicYear::orderBy('tanggal_mulai', 'desc')->get();
 
         return Inertia::render('Admin/Academics/Index', [
-            'academics' => $academics
+            'academicYears' => $academicYears
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tahun_ajaran' => 'required|string|max:10',
+            'tahun_ajaran' => 'required|string',
             'semester' => 'required|in:Ganjil,Genap',
             'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'tanggal_selesai' => 'required|date|after:tanggal_mulai',
         ]);
+
+        $isFirst = AcademicYear::count() === 0;
+        $validated['is_active'] = $isFirst;
 
         AcademicYear::create($validated);
 
-        return redirect()->back()->with('success', 'Tahun akademik berhasil ditambahkan.');
+        if ($isFirst) {
+            Cache::forget('active_academic_year_id');
+        }
+
+        return redirect()->back()->with('success', 'Tahun Ajaran berhasil ditambahkan.');
     }
 
-    public function update(Request $request, AcademicYear $academic)
+    public function setActive(AcademicYear $academicYear)
     {
-        $validated = $request->validate([
-            'tahun_ajaran' => 'required|string|max:10',
-            'semester' => 'required|in:Ganjil,Genap',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
+        AcademicYear::where('id', '!=', $academicYear->id)->update(['is_active' => false]);
 
-        $academic->update($validated);
+        $academicYear->update(['is_active' => true]);
 
-        return redirect()->back()->with('success', 'Data akademik berhasil diperbarui.');
+        Cache::forget('active_academic_year_id');
+
+        return redirect()->back()->with('success', 'Tahun Ajaran aktif berhasil diubah. Seluruh data KBM kini difokuskan ke periode ini.');
     }
 
-    public function destroy(AcademicYear $academic)
+    public function destroy(AcademicYear $academicYear)
     {
-        $academic->delete();
-        return redirect()->back();
-    }
+        if ($academicYear->is_active) {
+            return redirect()->back()->withErrors(['error' => 'Tidak dapat menghapus Tahun Ajaran yang sedang aktif. Silakan aktifkan periode lain terlebih dahulu.']);
+        }
 
-    public function toggleActive(AcademicYear $academic)
-    {
-        DB::transaction(function () use ($academic) {
-            // Nonaktifkan semua periode akademik
-            AcademicYear::query()->update(['is_active' => false]);
+        $academicYear->delete();
 
-            // Aktifkan periode yang dipilih
-            $academic->update(['is_active' => true]);
-        });
-
-        return redirect()->back()->with('success', 'Periode akademik diaktifkan.');
+        return redirect()->back()->with('success', 'Tahun Ajaran berhasil dihapus.');
     }
 }

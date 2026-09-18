@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Head, useForm, router } from "@inertiajs/react";
+import { Head, useForm, router, Link } from "@inertiajs/react";
 import AppLayout from "@/layouts/app-layout";
 import {
     Plus,
@@ -44,7 +44,6 @@ export default function Index({ classrooms, gurus }: Props) {
         id: string | null;
     }>({ isOpen: false, id: null });
 
-    // State untuk Filter Tingkat Kelas
     const [filterTingkat, setFilterTingkat] = useState<string>("all");
 
     const {
@@ -69,7 +68,6 @@ export default function Index({ classrooms, gurus }: Props) {
         wali_kelas_id: data.wali_kelas_id,
     }));
 
-    // Logika Filter Real-time
     const filteredClassrooms = classrooms.data.filter((item) =>
         filterTingkat === "all"
             ? true
@@ -124,7 +122,6 @@ export default function Index({ classrooms, gurus }: Props) {
 
             <div className="min-h-screen bg-[#F8F9FA] dark:bg-black p-4 sm:p-6 lg:p-8 font-sans">
                 <div className="max-w-7xl mx-auto space-y-6">
-                    {/* Header & Actions */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-sidebar border border-gray-100 dark:border-sidebar-border p-5 rounded-2xl shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl">
@@ -168,7 +165,6 @@ export default function Index({ classrooms, gurus }: Props) {
                         </div>
                     </div>
 
-                    {/* Table Card */}
                     <div className="bg-white dark:bg-sidebar border border-gray-100 dark:border-sidebar-border rounded-2xl shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm">
@@ -221,6 +217,13 @@ export default function Index({ classrooms, gurus }: Props) {
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Link
+                                                            href={`/admin/classrooms/${item.id}/members`}
+                                                            className="p-2 text-green-600 bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 rounded-lg transition-colors"
+                                                            title="Atur Anggota Kelas"
+                                                        >
+                                                            <Users size={16} />
+                                                        </Link>
                                                         <button
                                                             onClick={() =>
                                                                 openEditModal(
@@ -274,7 +277,6 @@ export default function Index({ classrooms, gurus }: Props) {
                 </div>
             </div>
 
-            {/* Modal Tambah & Edit */}
             {formModal.isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 dark:bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-sidebar rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-sidebar-border transform transition-all">
@@ -389,7 +391,6 @@ export default function Index({ classrooms, gurus }: Props) {
                 </div>
             )}
 
-            {/* Modal Konfirmasi Hapus */}
             {deleteModal.isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 dark:bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-sidebar rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 dark:border-sidebar-border text-center transform transition-all">
