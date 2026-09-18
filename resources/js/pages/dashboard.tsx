@@ -1,52 +1,29 @@
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
-import PendingInvitationsModal from '@/components/pending-invitations-modal';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import { dashboard } from '@/routes';
-import type { DashboardInvitation } from '@/types';
 
-type Props = {
-    pendingInvitations?: DashboardInvitation[];
-};
+interface Props {
+    pesan: string;
+}
 
-export default function Dashboard({ pendingInvitations = [] }: Props) {
-    const [showInvitations, setShowInvitations] = useState(
-        pendingInvitations.length > 0,
-    );
-
+export default function Dashboard({ pesan }: Props) {
     return (
         <>
-            <Head title="Dashboard" />
-            <PendingInvitationsModal
-                invitations={pendingInvitations}
-                open={pendingInvitations.length > 0 && showInvitations}
-                onOpenChange={setShowInvitations}
-            />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+            <Head title="Admin Dashboard" />
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-sidebar-border/70 dark:border-sidebar-border">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Selamat Datang, Admin!</h1>
+                    <p className="text-gray-600 dark:text-gray-400">{pesan}</p>
                 </div>
             </div>
         </>
     );
 }
 
-Dashboard.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+// Konfigurasi Layout & Breadcrumbs bawaan proyek
+Dashboard.layout = () => ({
     breadcrumbs: [
         {
-            title: 'Dashboard',
-            href: props.currentTeam ? dashboard(props.currentTeam.slug) : '/',
+            title: 'Dashboard Admin',
+            href: '/admin/dashboard',
         },
     ],
 });

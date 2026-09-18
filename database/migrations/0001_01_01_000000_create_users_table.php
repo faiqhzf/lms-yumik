@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->enum('role', ['admin_master', 'guru', 'siswa'])->default('siswa');
+            $table->char('classroom_id', 26)->nullable(); 
             $table->timestamps();
         });
 

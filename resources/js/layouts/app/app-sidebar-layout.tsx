@@ -4,6 +4,14 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import type { AppLayoutProps } from '@/types';
 
+import {
+    LayoutDashboard,
+    FileText,
+    GraduationCap,
+    Library,
+    PenTool,
+} from "lucide-react";
+
 export default function AppSidebarLayout({
     children,
     breadcrumbs = [],
@@ -18,3 +26,12 @@ export default function AppSidebarLayout({
         </AppShell>
     );
 }
+
+const iconComponents: Record<string, React.ElementType> = {
+    LayoutDashboard: LayoutDashboard,
+    FileText: FileText,
+    GraduationCap: GraduationCap,
+    Library: Library,
+    PenTool: PenTool,
+};
+

@@ -36,16 +36,46 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $navMenu = [];
 
-        return [
-            ...parent::share($request),
-            'name' => config('app.name'),
+        if ($user) {
+            $navMenu = match ($user->role) {
+                'admin_master' => [
+                    ['title' => 'Dashboard', 'url' => '/admin/dashboard', 'icon' => 'LayoutDashboard'],
+                    ['title' => 'Kelola Pengguna', 'url' => '/admin/users', 'icon' => 'Users'],
+                    ['title' => 'Mata Pelajaran', 'url' => '/admin/subjects', 'icon' => 'BookOpen'],
+                    ['title' => 'Manajemen Kelas', 'url' => '/admin/classrooms', 'icon' => 'Library'],
+                    ['title' => 'Penugasan Mengajar', 'url' => '/admin/teaching-schedules', 'icon' => 'ClipboardList'],
+                    [
+                        'title' => 'Tahun Akademik',
+                        'url' => '/admin/academics',
+                        'icon' => 'GraduationCap',
+                    ],
+                    [
+                        'title' => 'Laporan & Statistik',
+                        'url' => '/admin/reports',
+                        'icon' => 'BarChart2',
+                    ],
+                ],
+                'guru' => [
+                    ['title' => 'Dashboard', 'url' => '/guru/dashboard', 'icon' => 'LayoutDashboard'],
+                    ['title' => 'Bank Materi', 'url' => '/guru/materials', 'icon' => 'FileText'],
+                    ['title' => 'Tugas & Ujian', 'url' => '/guru/assignments', 'icon' => 'GraduationCap'],
+                ],
+                'siswa' => [
+                    ['title' => 'Dashboard', 'url' => '/siswa/dashboard', 'icon' => 'LayoutDashboard'],
+                    ['title' => 'Ruang Belajar', 'url' => '/siswa/assignments', 'icon' => 'Library'],
+                    ['title' => 'Ujian Aktif', 'url' => '/siswa/exams', 'icon' => 'PenTool'],
+                ],
+                default => [],
+            };
+        }
+
+        return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $user,
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
-            'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
-        ];
+            'nav_menu' => $navMenu, // Inject array menu ke frontend
+        ]);
     }
 }
